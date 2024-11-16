@@ -6,20 +6,24 @@ if [ $# -eq 0 ]
 fi
 
 # Image format "classic" 2:3, 10x15 | 9x13
-IMAGE_WIDTH_MM=153 	# 89
-IMAGE_HEIGHT_MM=102 # 133
+#  9x13:  89x133px
+# 10x15: 102x153px
+# 13x18: 127x178px
+IMAGE_WIDTH_MM=102
+IMAGE_HEIGHT_MM=153
 
 # Passphoto format: 35x45mm
-PASSPHOTO_WIDTH_MM=35
-PASSPHOTO_HEIGHT_MM=45
+PASSPHOTO_WIDTH_MM=40
+PASSPHOTO_HEIGHT_MM=50
 
 # pixel/mm
-PIXEL_PER_MM=12
+PIXEL_PER_MM=24
 IMAGE_WIDTH=$(expr $IMAGE_WIDTH_MM \* $PIXEL_PER_MM)
 IMAGE_HEIGHT=$(expr $IMAGE_HEIGHT_MM \* $PIXEL_PER_MM)
 PHOTO_WIDTH=$(expr $PASSPHOTO_WIDTH_MM \* $PIXEL_PER_MM)
 PHOTO_HEIGHT=$(expr $PASSPHOTO_HEIGHT_MM \* $PIXEL_PER_MM)
-
+BORDER_X=20
+BORDER_Y=20
 
 # create tmp directory
 if [ -d tmp ] 
@@ -40,10 +44,12 @@ do
 done
 PHOTO_WIDTH=$(expr $PHOTO_WIDTH + 2) # including borders
 PHOTO_HEIGHT=$(expr $PHOTO_HEIGHT + 2) # including borders
+PHOTO_BORDER_WIDTH=$(expr $PHOTO_WIDTH + 2 \* $BORDER_X)
+PHOTO_BORDER_HEIGHT=$(expr $PHOTO_HEIGHT + 2 \* $BORDER_Y)
 
 # calculate montage
-COLS=$(expr $IMAGE_WIDTH / $PHOTO_WIDTH)
-ROWS=$(expr $IMAGE_HEIGHT / $PHOTO_HEIGHT)
+COLS=$(expr $IMAGE_WIDTH / $PHOTO_BORDER_WIDTH)
+ROWS=$(expr $IMAGE_HEIGHT / $PHOTO_BORDER_HEIGHT)
 
 # select (or repeat) images:
 IMAGES=()
@@ -60,8 +66,6 @@ do
 done
 
 # create montage
-BORDER_X=10
-BORDER_Y=10
 montage ${IMAGES[@]} -tile $COLS\x$ROWS -geometry $PHOTO_WIDTH\x$PHOTO_HEIGHT+$BORDER_X+$BORDER_Y ./tmp/montage.jpg
 
 # fit montage to photo format
